@@ -1,32 +1,16 @@
-#include <stdbool.h>
-#include <unistd.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include "../../../glad/include/glad/glad.h"
-#include <GLFW/glfw3.h>
-#define FLAT_INCLUDES
-#include "../../range/def.h"
-#include "../../window/def.h"
-#include "../../window/alloc.h"
-#include "../../vec/vec.h"
-#include "../../vec/vec3.h"
-#include "../../keyargs/keyargs.h"
-#include "../../json/def.h"
-#include "../../gltf/def.h"
-#include "../../gltf/env.h"
+#include "loader.h"
 #include "../../gltf/parse.h"
+#include <assert.h>
+#include "../../window/alloc.h"
+#include "../../gltf/env.h"
+#include "../../convert/status.h"
 #include "../../convert/source.h"
 #include "../../gltf/convert.h"
 #include "../../log/log.h"
-#include "../../vec/vec4.h"
-#include "../../vec/mat4.h"
-#include "../mesh/def.h"
-#include "def.h"
 #include "internal/def.h"
-#include "loader.h"
-#include "../../uri/uri.h"
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 range_typedef(GLuint, GLuint);
 window_typedef(GLuint, GLuint);
@@ -99,35 +83,23 @@ static bool add_gltf_mesh (vbo_loader_buffers * buffers, const glb_toc * toc, gl
     return true;
 }
 
-static bool add_mesh_from_source (vbo_loader_buffers * buffers, convert_source * source)
+static bool add_glb_to_buffers (vbo_loader_buffers * buffers, const glb * glb)
 {
-    glb_toc toc;
-    gltf gltf;
-
-    if (!gltf_load_from_source(&gltf, &toc, source))
-    {
-	return false;
-    }
-
     *window_push(buffers->start_index) = range_count(buffers->position.region);
 
     gltf_mesh * mesh;
 
-    for_range (mesh, gltf.meshes)
+    for_range (mesh, glb->gltf.meshes)
     {
-	if (!add_gltf_mesh (buffers, &toc, mesh))
+	if (!add_gltf_mesh (buffers, &glb->toc, mesh))
 	{
-	    log_fatal ("Failed to add mesh %d", range_index(mesh, gltf.meshes));
+	    log_fatal ("Failed to add mesh %d", range_index(mesh, glb->gltf.meshes));
 	}
     }
 
-    gltf_clear (&gltf);
-    
     return true;
 
 fail:
-    gltf_clear (&gltf);
-    
     return false;
 }
 
@@ -139,26 +111,12 @@ static void free_buffers(vbo_loader_buffers * buffers)
     free (buffers->normal.alloc.begin);
 }
 
-static bool load_vbo_loader_buffers (vbo_loader_buffers * buffers, int uri_count, const char ** uris)
+static bool load_vbo_loader_buffers (vbo_loader_buffers * buffers, range_const_glb * input)
 {
-    convert_source * uri_source;
-
-    bool success;
-    
-    for (int i = 0; i < uri_count; i++)
+    const glb * i;
+    for_range(i, *input)
     {
-	uri_source = uri_open (NULL, "%s", uris[i]);
-
-	if (!uri_source)
-	{
-	    return false;
-	}
-	
-	success = add_mesh_from_source (buffers, uri_source);
-
-	convert_source_free (uri_source);
-
-	if (!success)
+	if (!add_glb_to_buffers (buffers, i))
 	{
 	    return false;
 	}
@@ -167,7 +125,7 @@ static bool load_vbo_loader_buffers (vbo_loader_buffers * buffers, int uri_count
     return true;
 }
 
-draw_buffer * draw_buffer_load (int uri_count, const char ** uris)
+bool draw_buffer_load_batch (draw_buffer ** result, range_const_glb * input)
 {
     assert (glGetError() == GL_NO_ERROR);
     
@@ -175,7 +133,7 @@ draw_buffer * draw_buffer_load (int uri_count, const char ** uris)
 
     unsigned char * vbo_contents = NULL;
     
-    if (!load_vbo_loader_buffers (&buffers, uri_count, uris))
+    if (!load_vbo_loader_buffers (&buffers, input))
     {
 	log_fatal ("Could not load a specified mesh uri for drawing");
     }
@@ -187,14 +145,16 @@ draw_buffer * draw_buffer_load (int uri_count, const char ** uris)
 
     vbo_contents = calloc (1, vbo_size);
 
+    size_t input_count = range_count(*input);
+
     memcpy (vbo_contents, buffers.position.region.begin, position_buffer_size);
     memcpy (vbo_contents + position_buffer_size, buffers.normal.region.begin, normal_buffer_size);
     
-    draw_buffer * buffer = calloc (1, sizeof(*buffer) + uri_count * sizeof(draw_mesh));
+    draw_buffer * buffer = calloc (1, sizeof(*buffer) + input_count * sizeof(draw_mesh));
 
-    assert (uri_count == range_count (buffers.start_index.region));
+    assert (input_count == (size_t)range_count (buffers.start_index.region));
 
-    buffer->mesh_count = uri_count;
+    buffer->mesh_count = input_count;
     buffer->vertex_count = range_count (buffers.position.region);
     
     GLuint * index;
@@ -225,12 +185,14 @@ draw_buffer * draw_buffer_load (int uri_count, const char ** uris)
     free_buffers (&buffers);
     free (vbo_contents);
 
-    return buffer;
+    *result = buffer;
+
+    return true;
 
 fail:
     free (vbo_contents);
     free_buffers (&buffers);
-    return NULL;
+    return false;
 }
 
 void draw_buffer_free (draw_buffer * target)

@@ -1,26 +1,16 @@
-#include <stdbool.h>
-#include <string.h>
-#include <unistd.h>
-#include "../../../glad/include/glad/glad.h"
-#include <GLFW/glfw3.h>
-#define FLAT_INCLUDES
-#include "../../range/def.h"
-#include "../../window/def.h"
-#include "../../vec/vec.h"
-#include "../../vec/vec3.h"
-#include "../../vec/vec4.h"
+#include "draw.h"
+#include "internal/def.h"
 #include "../../keyargs/keyargs.h"
 #include "../../vec/mat4.h"
-#include "../../json/def.h"
-#include "../../gltf/def.h"
-#include "../mesh/def.h"
-#include "def.h"
-#include "internal/def.h"
-#include "draw.h"
+#include "../../game-interface/time.h"
 #include "../../log/log.h"
+#include <assert.h>
+#include "../debug.h"
 
-void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
+void draw_buffer_draw (draw_buffer * buffer, draw_view * view, shader_program shader)
 {
+    gl_check("startup");
+    
     range_typedef(draw_mesh, draw_mesh);
 
     range_draw_mesh meshes = { .begin = buffer->meshes, .end = buffer->meshes + buffer->mesh_count };
@@ -32,6 +22,8 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
     glBindBuffer (GL_ARRAY_BUFFER, buffer->vbo);
     glBindVertexArray(buffer->vao);
 
+    gl_check("bind");
+    
     struct {
 	int model_translation;
 	int model_rotation;
@@ -60,6 +52,8 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
     	.mvp_rotation = glGetUniformLocation(shader, "uniform_mvp_rotation"),
 	.mvp_transform = glGetUniformLocation(shader, "uniform_mvp_transform"),
     };
+
+    gl_check("get uniform");
     
     struct {
 	mat4 scale;
@@ -84,13 +78,22 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
 
     GLuint time_location = glGetUniformLocation (shader, "uniform_time");
 
+    gl_check("get time location");
+    
     mat4_setup_translation_matrix(.result = &matrix.view.translation, .translation = view->position);
     mat4_setup_rotation_matrix(.result = &matrix.view.rotation, .quaternion = &view->quaternion);
     mat4_multiply (&matrix.view.transform, &matrix.view.rotation, &matrix.view.translation);
 
+    gl_check("before gluniform");
+
     glUniformMatrix4fv(matrix_id.view_rotation, 1, GL_FALSE, matrix.view.rotation.index);
+    gl_check("uniform view rotation");
+
     glUniformMatrix4fv(matrix_id.view_translation, 1, GL_FALSE, matrix.view.translation.index);
+    gl_check("uniform view translation");
+    
     glUniformMatrix4fv(matrix_id.view_transform, 1, GL_FALSE, matrix.view.transform.index);
+    gl_check("uniform view transform");
 
     mat4_setup_projection_matrix(.result = &matrix.projection,
 				 .fovy = 2.0 * 3.14159 / (3.0 * 2),
@@ -98,6 +101,9 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
 				 .near = 0.01,
 				 .far = 1000);
     glUniformMatrix4fv(matrix_id.projection, 1, GL_FALSE, matrix.projection.index);
+    gl_check("uniform projection");
+    
+    gl_check("before loop");
     
     for_range (mesh, meshes)
     {
@@ -122,7 +128,7 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, int shader)
 	    glUniformMatrix4fv(matrix_id.mvp_rotation, 1, GL_FALSE, matrix.mvp.rotation.index);
 	    glUniformMatrix4fv(matrix_id.mvp_transform, 1, GL_FALSE, matrix.mvp.transform.index);
 
-	    glUniform1f (time_location, glfwGetTime());
+	    glUniform1f (time_location, ui_get_time());
 	    
 	    glDrawArrays (GL_TRIANGLES, mesh->index.begin, mesh->index.end);
 	}

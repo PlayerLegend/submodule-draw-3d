@@ -1,20 +1,14 @@
 #ifndef FLAT_INCLUDES
-#include <stdbool.h>
-#include <unistd.h>
-#include "../../../glad/include/glad/glad.h"
-#define FLAT_INCLUDES
-#include "../../range/def.h"
-#include "../../window/def.h"
-#include "../../vec/vec.h"
-#include "../../vec/vec3.h"
-#include "../../vec/vec4.h"
-#include "../../keyargs/keyargs.h"
-#include "../../json/def.h"
-#include "../../gltf/def.h"
-#include "../mesh/def.h"
 #include "def.h"
 #endif
 
-draw_buffer * draw_buffer_load (int count, const char ** uris);
+bool draw_buffer_load_batch (draw_buffer ** result, range_const_glb * input);
+
+inline static bool draw_buffer_load_single (draw_buffer ** result, const glb * input)
+{
+    range_const_glb input_range = { .begin = input, .end = input + 1 };
+
+    return draw_buffer_load_batch(result, &input_range);
+}
 
 void draw_buffer_free (draw_buffer * target);

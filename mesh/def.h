@@ -1,16 +1,9 @@
 #ifndef FLAT_INCLUDES
-#include <stdbool.h>
-#include <unistd.h>
-#include "../../../glad/include/glad/glad.h"
-#define FLAT_INCLUDES
-#include "../../range/def.h"
-#include "../../window/def.h"
+#include "../../gltf/def.h"
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
 #include "../../vec/vec4.h"
-#include "../../keyargs/keyargs.h"
-#include "../../json/def.h"
-#include "../../gltf/def.h"
+#include "../../glad/glad.h"
 #endif
 
 typedef struct draw_mesh draw_mesh;
