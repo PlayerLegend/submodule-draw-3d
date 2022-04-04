@@ -62,10 +62,21 @@ static bool add_primitive (vbo_loader_buffers * buffers, const glb_toc * toc, gl
 
     window_rewrite (buffers->indices);
     gltf_accessor_env_load_indices (&buffers->indices, &env);
+
+    if (!add_primitive_position (&buffers->position, &buffers->indices.region, toc, primitive))
+    {
+	log_fatal ("Failed to add primitive position");
+    }
+
+    if (!add_primitive_normal (&buffers->normal, &buffers->indices.region, toc, primitive))
+    {
+	log_fatal ("Failed to add primitive normal");
+    }
     
-    return
-	add_primitive_position (&buffers->position, &buffers->indices.region, toc, primitive) &&
-	add_primitive_normal (&buffers->normal, &buffers->indices.region, toc, primitive);
+    return true;
+
+fail:
+    return false;
 }
 
 static bool add_gltf_mesh (vbo_loader_buffers * buffers, const glb_toc * toc, gltf_mesh * mesh)
@@ -76,11 +87,13 @@ static bool add_gltf_mesh (vbo_loader_buffers * buffers, const glb_toc * toc, gl
     {
 	if (!add_primitive (buffers, toc, primitive))
 	{
-	    return false;
+	    log_fatal ("Failed to add primitive %zu/%zu", range_index(primitive, mesh->primitives), range_count(mesh->primitives));
 	}
     }
 
     return true;
+fail:
+    return false;
 }
 
 static bool add_glb_to_buffers (vbo_loader_buffers * buffers, const glb * glb)
