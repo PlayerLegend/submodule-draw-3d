@@ -4,6 +4,7 @@
 #include "../../vec/vec3.h"
 #include "../../vec/vec4.h"
 #include "../../glad/glad.h"
+#include "../../vec/object3.h"
 #endif
 
 typedef struct draw_mesh draw_mesh;
@@ -15,10 +16,8 @@ typedef struct {
     draw_mesh_index_range;
 
 typedef struct {
-    fvec3 position;
-    fvec4 quaternion;
-    float scale;
-    draw_mesh * parent;
+    vec_object3 origin;
+    draw_mesh * mesh;
 }
     draw_mesh_instance;
 

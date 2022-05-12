@@ -5,6 +5,7 @@ src/draw-3d/buffer/def.o: src/glad/KHR/khrplatform.h
 src/draw-3d/buffer/def.o: src/glad/glad.h
 src/draw-3d/buffer/def.o: src/gltf/def.h
 src/draw-3d/buffer/def.o: src/range/def.h
+src/draw-3d/buffer/def.o: src/vec/object3.h
 src/draw-3d/buffer/def.o: src/vec/vec.h
 src/draw-3d/buffer/def.o: src/vec/vec3.h
 src/draw-3d/buffer/def.o: src/vec/vec4.h
@@ -23,6 +24,7 @@ src/draw-3d/buffer/draw.o: src/keyargs/keyargs.h
 src/draw-3d/buffer/draw.o: src/log/log.h
 src/draw-3d/buffer/draw.o: src/range/def.h
 src/draw-3d/buffer/draw.o: src/vec/mat4.h
+src/draw-3d/buffer/draw.o: src/vec/object3.h
 src/draw-3d/buffer/draw.o: src/vec/vec.h
 src/draw-3d/buffer/draw.o: src/vec/vec3.h
 src/draw-3d/buffer/draw.o: src/vec/vec4.h
@@ -41,6 +43,7 @@ src/draw-3d/buffer/loader.o: src/gltf/env.h
 src/draw-3d/buffer/loader.o: src/gltf/parse.h
 src/draw-3d/buffer/loader.o: src/log/log.h
 src/draw-3d/buffer/loader.o: src/range/def.h
+src/draw-3d/buffer/loader.o: src/vec/object3.h
 src/draw-3d/buffer/loader.o: src/vec/vec.h
 src/draw-3d/buffer/loader.o: src/vec/vec3.h
 src/draw-3d/buffer/loader.o: src/vec/vec4.h
@@ -51,6 +54,7 @@ src/draw-3d/mesh/def.o: src/glad/KHR/khrplatform.h
 src/draw-3d/mesh/def.o: src/glad/glad.h
 src/draw-3d/mesh/def.o: src/gltf/def.h
 src/draw-3d/mesh/def.o: src/range/def.h
+src/draw-3d/mesh/def.o: src/vec/object3.h
 src/draw-3d/mesh/def.o: src/vec/vec.h
 src/draw-3d/mesh/def.o: src/vec/vec3.h
 src/draw-3d/mesh/def.o: src/vec/vec4.h
@@ -89,6 +93,7 @@ src/draw-3d/test/draw-3d.test.o: src/gltf/parse.h
 src/draw-3d/test/draw-3d.test.o: src/keyargs/keyargs.h
 src/draw-3d/test/draw-3d.test.o: src/log/log.h
 src/draw-3d/test/draw-3d.test.o: src/range/def.h
+src/draw-3d/test/draw-3d.test.o: src/vec/object3.h
 src/draw-3d/test/draw-3d.test.o: src/vec/vec.h
 src/draw-3d/test/draw-3d.test.o: src/vec/vec3.h
 src/draw-3d/test/draw-3d.test.o: src/vec/vec4.h

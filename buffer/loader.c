@@ -221,7 +221,7 @@ void draw_buffer_free (draw_buffer * target)
     {
 	for_range (instance, mesh->instances.region)
 	{
-	    (*instance)->parent = NULL;
+	    (*instance)->mesh = NULL;
 	}
 	free (mesh->instances.alloc.begin);
     }

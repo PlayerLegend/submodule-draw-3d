@@ -53,7 +53,7 @@ static bool _build_shader_from_source (GLint * result, GLenum shader_type, conve
 	log_fatal ("Failed to load shader from source");
     }
 
-    return _build_shader_from_string (result, shader_type, source->contents->region.char_cast.const_cast.begin);
+    return _build_shader_from_string (result, shader_type, source->contents->region.char_cast.alias_const.begin);
 
 fail:
     return false;
