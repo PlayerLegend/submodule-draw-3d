@@ -16,7 +16,7 @@ typedef struct {
     draw_mesh_index_range;
 
 typedef struct {
-    vec_object3 origin;
+    vec_object3 * origin;
     draw_mesh * mesh;
 }
     draw_mesh_instance;
@@ -31,3 +31,4 @@ struct draw_mesh {
 };
 
 void mesh_instance_set_mesh (draw_mesh_instance * instance, draw_mesh * mesh);
+void mesh_transfer (draw_mesh * to, draw_mesh * from);

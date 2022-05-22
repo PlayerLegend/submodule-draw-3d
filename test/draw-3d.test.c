@@ -47,7 +47,9 @@ int main(int argc, char * argv[])
     draw_buffer_mesh_access(&draw_meshes, draw_buffer);
     assert (range_count(draw_meshes) == 1);
 
-    draw_mesh_instance instance = { .scale = 1.0, .quaternion = { .w = 1 } };
+    vec_object3 origin = VEC_OBJECT3_INITIALIZER;
+
+    draw_mesh_instance instance = { .origin = &origin };
     mesh_instance_set_mesh(&instance, draw_meshes.begin);
 
     draw_view view = { .quaternion = { .w = 1 }, .position.z = -5 };
@@ -72,7 +74,7 @@ int main(int argc, char * argv[])
 	{
 	    continue;
 	}
-	vec4_apply_rotation_axis(&instance.quaternion, &axis);
+	vec4_apply_rotation_axis(&instance.origin->quaternion, &axis);
 	assert (glGetError() == GL_NO_ERROR);
 	ui_window_swap(window);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

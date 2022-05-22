@@ -109,9 +109,9 @@ void draw_buffer_draw (draw_buffer * buffer, draw_view * view, shader_program sh
     {
 	for_range (instance, mesh->instances.region)
 	{
-	    mat4_setup_scale_matrix(.result = &matrix.scale, .scale = (fvec3) { .x = (*instance)->origin.scale, .y = (*instance)->origin.scale, .z = (*instance)->origin.scale });
-    	    mat4_setup_translation_matrix (.result = &matrix.model.translation, .translation = (*instance)->origin.position);
-	    mat4_setup_rotation_matrix (.result = &matrix.model.rotation, .quaternion = &(*instance)->origin.quaternion);
+	    mat4_setup_scale_matrix(.result = &matrix.scale, .scale = (fvec3) { .x = (*instance)->origin->scale, .y = (*instance)->origin->scale, .z = (*instance)->origin->scale });
+    	    mat4_setup_translation_matrix (.result = &matrix.model.translation, .translation = (*instance)->origin->position);
+	    mat4_setup_rotation_matrix (.result = &matrix.model.rotation, .quaternion = &(*instance)->origin->quaternion);
 
 	    mat4_multiply (&matrix.tmp, &matrix.model.translation, &matrix.scale);
 	    mat4_multiply (&matrix.model.transform, &matrix.tmp, &matrix.model.rotation);
