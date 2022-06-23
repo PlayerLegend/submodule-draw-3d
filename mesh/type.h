@@ -2,4 +2,4 @@
 #define FLAT_INCLUDES
 #endif
 
-typedef int shader_program;
+typedef struct draw_mesh draw_mesh;

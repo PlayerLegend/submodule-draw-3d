@@ -1,15 +1,21 @@
-#include "loader.h"
-#include "../../gltf/parse.h"
+#include "glb.h"
 #include <assert.h>
-#include "../../window/alloc.h"
-#include "../../gltf/env.h"
-#include "../../convert/status.h"
-#include "../../convert/source.h"
-#include "../../gltf/convert.h"
-#include "../../log/log.h"
-#include "internal/def.h"
-#include <assert.h>
+#include "../../../window/alloc.h"
+#include "../../../vec/vec.h"
+#include "../../../gltf/env.h"
+#include "../../../convert/type.h"
+#include "../../../convert/source.h"
+#include "../../../gltf/load/source.h"
+#include "../../../log/log.h"
+#include "../../../glad/glad.h"
+#include "../../../vec/shape3.h"
+#include "../../../vec/object3.h"
+#include "../../mesh/type.h"
+#include "../../object/type.h"
+#include "../../mesh/type.internal.h"
+#include "../type.internal.h"
 #include <stdlib.h>
+#include <assert.h>
 #include <string.h>
 
 range_typedef(GLuint, GLuint);
@@ -138,7 +144,7 @@ static bool load_vbo_loader_buffers (vbo_loader_buffers * buffers, range_const_g
     return true;
 }
 
-bool draw_buffer_load_batch (draw_buffer ** result, range_const_glb * input)
+bool draw_buffer_load_glb (draw_buffer ** result, range_const_glb * input)
 {
     assert (glGetError() == GL_NO_ERROR);
     
@@ -206,25 +212,4 @@ fail:
     free (vbo_contents);
     free_buffers (&buffers);
     return false;
-}
-
-void draw_buffer_free (draw_buffer * target)
-{
-    glDeleteVertexArrays (1, &target->vao);
-    glDeleteBuffers (1, &target->vbo);
-
-    struct range(draw_mesh) meshes = { .begin = target->meshes, .end = target->meshes + target->mesh_count };
-    draw_mesh * mesh;
-    draw_mesh_instance ** instance;
-
-    for_range (mesh, meshes)
-    {
-	for_range (instance, mesh->instances.region)
-	{
-	    (*instance)->mesh = NULL;
-	}
-	free (mesh->instances.alloc.begin);
-    }
-
-    free (target);
 }
